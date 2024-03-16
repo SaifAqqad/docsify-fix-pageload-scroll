@@ -1,41 +1,32 @@
+if (typeof window.$docsify === 'object') {
+    window.$docsify.plugins = [].concat((hook, vm) => {
+        const SCROLL_DELAY = 2000;
+        const scrollCurrentElement = () => {
+            const location = window.location;
 
-;(function(win) {
-    function create(param){
-        var isParamExist = (typeof param === 'object')
+            const currentUrlWithoutHash = new URL(
+                location.origin + location.pathname +
+                location.search + location.hash.substring(1)
+            );
 
-        return function (hook, vm) {
-            hook.ready(function () {
-                // true = show debug log
-                var dd = isParamExist && param.isDebug || false
-                var TARGET_QUERY = isParamExist && param.targetParam || 'id'
-                var SCROLL_DELAY = isParamExist && param.scrollDelay || 2000 // in milisecond
-                var location = window.location
+            const urlQueryParam = currentUrlWithoutHash.searchParams;
+            if (!urlQueryParam.has('id'))
+                return;
 
-                dd&&console.log('custom scroll plugin called')
-                var currentUrlWithoutHash = new URL(
-                    location.origin+location.pathname+
-                    location.search+location.hash.substring(1)
-                )
-                var urlQueryParam = currentUrlWithoutHash.searchParams
-                var isUrlHasIdQuery = urlQueryParam.has(TARGET_QUERY)
-                if(isUrlHasIdQuery){
-                    dd&&console.log('url has id, will scroll to element')
-                    var urlId = urlQueryParam.get(TARGET_QUERY)
-                    // run delayed, to make sure everything loaded
-                    setTimeout(function() {
-                        dd&&console.log('will scroll now!')
-                        try{
-                            document.querySelector('#'+urlId)
-                                .scrollIntoView()
-                        } catch(e){ dd&&console.log('custom scroll failed',e) }
-                    }, SCROLL_DELAY);
-                }
-            })
-        }
-    }
-    win.DocsifyPageloadScrollPlugin={}
-    win.DocsifyPageloadScrollPlugin.create = create
-    if(typeof win.$docsify === 'object'){
-        win.$docsify.plugins = [].concat(create(), $docsify.plugins);
-    }
-})(window);
+            const urlId = urlQueryParam.get('id');
+            // run delayed, to make sure everything loaded
+            setTimeout(function () {
+                try {
+                    document.querySelector(`#${urlId}`).scrollIntoView({ behavior: "smooth" });
+                } catch (e) { }
+            }, SCROLL_DELAY);
+        };
+
+        hook.ready(scrollCurrentElement);
+        window.navigation.addEventListener("navigate", (e) => {
+            if (!e.hashChange)
+                return;
+            scrollCurrentElement();
+        });
+    }, $docsify.plugins);
+}
