@@ -23,10 +23,6 @@ if (typeof window.$docsify === 'object') {
         };
 
         hook.ready(scrollCurrentElement);
-        window.navigation.addEventListener("navigate", (e) => {
-            if (!e.hashChange)
-                return;
-            scrollCurrentElement();
-        });
+        window.addEventListener("hashchange", scrollCurrentElement);
     }, $docsify.plugins);
 }
