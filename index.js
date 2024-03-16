@@ -1,6 +1,6 @@
 if (typeof window.$docsify === 'object') {
     window.$docsify.plugins = [].concat((hook, vm) => {
-        const SCROLL_DELAY = 2000;
+        const SCROLL_DELAY = 500;
         const scrollCurrentElement = () => {
             const location = window.location;
 
